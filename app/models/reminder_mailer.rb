@@ -39,6 +39,7 @@ class ReminderMailer < Mailer
       )
       issues = scope.joins(:status, :assigned_to, :project, :tracker).to_a
       issues.reject! { |issue| not (issue.remind? or issue.overdue?) }
+      issues.reject! { |issue| not (!issue.closed?) }
       issues.sort! { |first, second| first.due_date <=> second.due_date }
     else
       scope = Issue.open.scoped(:conditions => [
@@ -49,6 +50,7 @@ class ReminderMailer < Mailer
       ])
       issues = scope.all(:include => [:status, :assigned_to, :project, :tracker])
       issues.reject! { |issue| not (issue.remind? or issue.overdue?) }
+      issues.reject! { |issue| not (!issue.closed?) }
       issues.sort! { |first, second| first.due_date <=> second.due_date }
     end
   end
